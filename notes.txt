@@ -1,0 +1,11 @@
+1.python -m venv my_env
+2. ./my_env/Scripts/activate.bat
+3.pip freeze > requirements.txt
+4.pip install -r requirements.txt.
+5.django-admin startproject mysite
+6.python manage.py migrate
+7.python manage.py startapp blog
+8.Когда структура приложения готова, можно приступать к разработке мо-
+делей данных блога.
+9.
+10.
