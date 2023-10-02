@@ -9,5 +9,19 @@ app_name = 'blog'
 urlpatterns = [
     # представления поста
     path('', views.post_list, name='post_list'),
-    path('<int:id>/', views.post_detail, name='post_detail'),
+    path('<int:year>/<int:month>/<int:day>/<slug:post>/',
+         views.post_detail,
+         name='post_detail'),
+# Шаблон URL-адреса представления post_detail принимает следующие
+# ниже аргументы:
+# • year: требуется целое число;
+# • month: требуется целое число;
+# • day: требуется целое число;
+# • post: требуется слаг (строка, содержащая только буквы, цифры, знаки
+# подчеркивания или дефисы).
+# Конвертор пути int используется для параметров year, month и day, тогда как
+# конвертор пути slug применяется для параметра post.
+
+
+
 ]

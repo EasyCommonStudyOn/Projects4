@@ -29,18 +29,22 @@ author__username.
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 
 class PublishedManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset() \
             .filter(status=Post.Status.PUBLISHED)
+
+
 """
 Есть два способа добавлять или адаптировать модельные менеджеры под
 конкретно-прикладную задачу: можно добавлять дополнительные методы
 менеджера в существующий менеджер либо создавать новый менеджер, ви-
 доизменив изначальный набор запросов QuerySet, возвращаемый менедже-
 ром."""
+
 
 class Post(models.Model):
     objects = models.Manager()  # менеджер, применяемый по умолчанию
@@ -51,7 +55,14 @@ class Post(models.Model):
         PUBLISHED = 'PB', 'Published'
 
     title = models.CharField(max_length=250)  # транслируется в столбец VARCHAR в базе дан-ных SQL
-    slug = models.SlugField(max_length=250)  # короткая метка, транслируется в столбец VARCHAR в базе дан-ных SQL
+    slug = models.SlugField(max_length=250,
+                            unique_for_date='publish')  # короткая метка, транслируется в столбец VARCHAR в базе дан-ных SQL. Обратите внимание,
+    # что поле publish является экземпляром класса DateTimeField, но проверка на
+    # уникальность значений будет выполняться только по дате (не по времени).
+    # Django будет предотвращать сохранение нового поста с тем же именем, что
+    # и у существующего поста на заданную дату публикации. В результате мы
+    # обес печили уникальность слагов для даты публикации, поэтому теперь мож-
+    # но извлекать одиночные посты по полям publish и slug.
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
                                related_name='blog_posts')
@@ -82,6 +93,24 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
     # Django будет использовать этот метод
     # для отображения имени объекта во многих местах, таких как его сайт адми-
     # нистрирования.
+
+    def get_absolute_url(self):
+        return reverse('blog:post_detail',
+                       args=[self.publish.year,
+                             self.publish.month,
+                             self.publish.day,
+                             self.slug])
+# Мы использова-
+# ли именное пространство blog, за которым следуют двоеточие и URL-адрес
+# post_detail. Напомним, что именное пространство blog определяется в глав-
+# ном файле urls.py проекта при вставке шаблонов URL-адресов из blog.urls.
+# URL-адрес post_detail определен в файле urls.py приложения blog. Результи-
+# рующий строковый литерал, blog:post_detail, можно использовать глобально
+# в проекте, чтобы ссылаться на URL-адрес детальной информации о посте.
+# Этот URL-адрес имеет обязательный параметр – id извлекаемого поста бло-
+# га. Идентификатор id объекта Post был включен в качестве позиционного
+# аргумента, используя параметр args=[self.id].

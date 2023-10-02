@@ -1,10 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+{% extends "blog/base.html" %}
+{% block title %}My Blog{% endblock %}
+{% block content %}
+<h1>My Blog</h1>
+{% for post in posts %}
+<h2>
+    <a href="{{ post.get_absolute_url }}">
+<!--передаем необходимый пара-
+метр post.id, чтобы сформировать URL-адрес для каждого поста.
+Мы используем blog:post_detail, чтобы ссылаться на URL-адрес-->
+<!--post_detail в именном пространстве blog.-->
+        {{ post.title }}
+    </a>
+</h2>
+<p class="date">
+    Published {{ post.publish }} by {{ post.author }}
+</p>
+{{ post.body|truncatewords:30|linebreaks }}
+<!--В теле поста применяются два шаблонных фильтра: truncatewords усека- -->
+<!--ет значение до указанного числа слов, а linebreaks конвертирует результат-->
+<!--в разрывы строк в формате HTML.-->
+{% endfor %}
+{% endblock %}
