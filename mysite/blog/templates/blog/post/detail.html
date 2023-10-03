@@ -1,9 +1,54 @@
 {% extends "blog/base.html" %}
+{% load blog_tags %}
 {% block title %}{{ post.title }}{% endblock %}
 {% block content %}
 <h1>{{ post.title }}</h1>
 <p class="date">
-Published {{ post.publish }} by {{ post.author }}
+    Published {{ post.publish }} by {{ post.author }}
 </p>
-{{ post.body|linebreaks }}
+{{ post.body|markdown }}
+<p>
+    <a href="{% url 'blog:post_share' post.id %}">
+        Share this post
+    </a>
+</p>
+<h2>Similar posts</h2>
+{% for post in similar_posts %}
+<p>
+    <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+</p>
+{% empty %}
+There are no similar posts yet.
+{% endfor %}
+{% with comments.count as total_comments %}
+<!--Тег-->
+<!--with позволяет присваивать значение новой переменной, которая будет-->
+<!--доступна в шаб лоне до тех пор, пока не по явится тег endwith .-->
+<h2>
+    {{ total_comments }} comment{{ total_comments|pluralize }}
+    <!--    Шаблонный фильтр pluralize возвращает строковый литерал с буквой «s»,-->
+    <!--если значение отличается от 1. Приведенный выше текст будет прорисовы- -->
+    <!--ваться как 0 comments, 1 comment или N comments, в зависимости от числа-->
+    <!--активных комментариев к посту.-->
+</h2>
+{% endwith %}
+{% for comment in comments %}
+<div class="comment">
+    <p class="info">
+        Comment {{ forloop.counter }} by {{ comment.name }}
+        {{ comment.created }}
+    </p>
+    {{ comment.body|linebreaks }}
+</div>
+{% empty %}
+<p>There are no comments.</p>
+{% endfor %}
+<!--Мы добавили шаблонный тег for , чтобы прокручивать комментарии-->
+<!--к посту в цикле. Если список комментариев пуст, то выводится сообщение,-->
+<!--информирующее пользователей о том, что комментариев к этому посту нет.-->
+<!--Комментарии прокручиваются в цикле посредством переменной  forloop.-->
+<!--counter , которая обновляет счетчик цикла на каждой итерации. По каждо- -->
+<!--му посту мы показываем имя пользователя, который его опубликовал, дату-->
+<!--и текст комментария.-->
+{% include "blog/post/includes/comment_form.html" %}
 {% endblock %}

@@ -30,6 +30,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
+from taggit.managers import TaggableManager
 
 
 class PublishedManager(models.Manager):
@@ -47,6 +48,7 @@ class PublishedManager(models.Manager):
 
 
 class Post(models.Model):
+    tags = TaggableManager()  # Менеджер tags позволит добавлять, извлекать и удалять теги из объектов Post.
     objects = models.Manager()  # менеджер, применяемый по умолчанию
     published = PublishedManager()  # конкретно-прикладной менеджер
 
@@ -104,6 +106,8 @@ class Post(models.Model):
                              self.publish.month,
                              self.publish.day,
                              self.slug])
+
+
 # Мы использова-
 # ли именное пространство blog, за которым следуют двоеточие и URL-адрес
 # post_detail. Напомним, что именное пространство blog определяется в глав-
@@ -114,3 +118,40 @@ class Post(models.Model):
 # Этот URL-адрес имеет обязательный параметр – id извлекаемого поста бло-
 # га. Идентификатор id объекта Post был включен в качестве позиционного
 # аргумента, используя параметр args=[self.id].
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post,
+                             on_delete=models.CASCADE,
+                             related_name='comments')
+    name = models.CharField(max_length=80)
+    email = models.EmailField()
+    body = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['created']
+
+    indexes = [
+        models.Index(fields=['created']),
+    ]
+
+    def __str__(self):
+        return f'Comment by {self.name} on {self.post}'
+
+
+"""
+Это модель Comment. Поле ForeignKey было добавлено для того, чтобы свя-
+зать каждый комментарий с одним постом. Указанная взаимосвязь многие-
+к-одному определена в модели Comment, потому что каждый комментарий
+будет делаться к одному посту, и каждый пост может содержать несколько
+комментариев.
+Атрибут related_name позволяет назначать имя атрибуту, который исполь-
+зуется для связи от ассоциированного объекта назад к нему. Пост коммен-
+тарного объекта можно извлекать посредством comment.post и все коммен-
+тарии, ассоциированные с объектом-постом, – посредством post.comments.
+all(). Если атрибут related_name не определен, то Django будет использовать
+имя модели в нижнем регистре, за которым следует _set (то есть comment_set),
+чтобы именовать взаимосвязь ассоциированного объекта с объектом модели,
+в которой эта взаимосвязь была определена."""

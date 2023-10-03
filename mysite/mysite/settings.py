@@ -28,6 +28,8 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+SITE_ID = 1
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -36,6 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog.apps.BlogConfig',
+    'taggit',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
+    'django.contrib.postgres',
+    # 'markdown_deux',
 ]
 
 MIDDLEWARE = [  # подлежащие исполнению промежуточные программные компоненты.
@@ -46,7 +53,17 @@ MIDDLEWARE = [  # подлежащие исполнению промежуточ
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'markdown_deux.middleware.MarkdownMiddleware',
 ]
+
+# MARKDOWN_DEUX_STYLES = {
+#     "default": {
+#         "extras": {
+#             "code-friendly": None,
+#         },
+#         "safe_mode": "escape",
+#     },
+# }
 
 ROOT_URLCONF = 'mysite.urls'
 
@@ -116,3 +133,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+#
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = 'your_account@gmail.com'
+# EMAIL_HOST_PASSWORD = ''
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
